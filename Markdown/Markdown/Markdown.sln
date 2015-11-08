@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown.csproj", "{69809F88-2512-48CF-9B27-AD417E3F30FA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown Tests", "..\Markdown Tests\Markdown Tests.csproj", "{2BE7AA3C-EB63-4FD9-B4F4-5F891AF6872F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{69809F88-2512-48CF-9B27-AD417E3F30FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69809F88-2512-48CF-9B27-AD417E3F30FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69809F88-2512-48CF-9B27-AD417E3F30FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BE7AA3C-EB63-4FD9-B4F4-5F891AF6872F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BE7AA3C-EB63-4FD9-B4F4-5F891AF6872F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BE7AA3C-EB63-4FD9-B4F4-5F891AF6872F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BE7AA3C-EB63-4FD9-B4F4-5F891AF6872F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
