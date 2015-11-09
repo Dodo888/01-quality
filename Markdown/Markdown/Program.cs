@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown
 {
@@ -12,13 +9,19 @@ namespace Markdown
         {
             string configFile = args[0];
             string originalFile = args[1];
+            string headerFile = "header.txt";
+            var header = FileParser.ReadParagraphFromFile(headerFile).ToList();
             string finalFile = originalFile.Split('.')[0] + ".html";
+
+            FileParser.WriteLineToFile(finalFile, header[0]);
             var markdownMaker = new MarkdownMaker(configFile);
-            foreach (var line in FileParser.ReadLineFromFile(originalFile))
+            foreach (var result in 
+                FileParser.ReadParagraphFromFile(originalFile)
+                          .Select(line => markdownMaker.MarkParagraph(line)))
             {
-                var result = markdownMaker.FindTaggedArea(line);
-                Console.WriteLine(result);
+                FileParser.WriteLineToFile(finalFile, "<p>" + result + "</p>");
             }
+            FileParser.WriteLineToFile(finalFile, header[1]);
             Console.WriteLine(finalFile);
         }
     }

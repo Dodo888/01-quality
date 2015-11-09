@@ -1,16 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace Markdown
 {
     public class FileParser
     {
+        public static IEnumerable<string> ReadParagraphFromFile(string path)
+        {
+            var file = new StreamReader(path);
+            string paragraph = "";
+            string line;
+            while ((line = file.ReadLine()) != null)
+            {
+                if (line == "")
+                {
+                    yield return paragraph;
+                    paragraph = "";
+                }
+                paragraph += line + "\r\n";    
+            }
+            yield return paragraph;
+            file.Close();
+        }
+
         public static IEnumerable<string> ReadLineFromFile(string path)
         {
-            System.IO.StreamReader file = new System.IO.StreamReader(path);
+            var file = new StreamReader(path);
             string line;
             while ((line = file.ReadLine()) != null)
             {
@@ -21,7 +36,7 @@ namespace Markdown
 
         public static void WriteLineToFile(string path, string line)
         {
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(path))
+            using (var file = new StreamWriter(path, true))
             {
                 file.WriteLine(line);
             }
