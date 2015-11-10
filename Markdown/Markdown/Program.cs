@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 
 namespace Markdown
@@ -16,15 +15,19 @@ namespace Markdown
             if (File.Exists(finalFile))
                 File.Delete(finalFile);
             FileParser.WriteLineToFile(finalFile, header[0]);
-            var markdownMaker = new MarkdownMaker(configFile);
-            foreach (var result in 
-                FileParser.ReadParagraphFromFile(originalFile)
-                          .Select(line => markdownMaker.MarkParagraph(line)))
-            {
-                FileParser.WriteLineToFile(finalFile, "<p>" + result + "</p>");
-            }
+            WriteContent(configFile, originalFile, finalFile);
             FileParser.WriteLineToFile(finalFile, header[1]);
-            Console.WriteLine(finalFile);
+        }
+
+        public static void WriteContent(string configFile, string originalFile, string finalFile)
+        {
+            var markdownMaker = new MarkdownMaker(configFile);
+            foreach (var result in
+                FileParser.ReadParagraphFromFile(originalFile)
+                          .Select(paragraph => markdownMaker.MarkParagraph(paragraph)))
+            {
+                FileParser.WriteLineToFile(finalFile, result);
+            }
         }
     }
 }

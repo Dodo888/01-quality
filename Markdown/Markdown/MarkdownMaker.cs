@@ -7,30 +7,41 @@ namespace Markdown
     public class MarkdownMaker
     {
         private readonly Dictionary<string, MarkdownTag> tagForSymbol;
+        public MarkdownTag ParagraphTags;
 
         public MarkdownMaker(Dictionary<string, MarkdownTag> tags)
         {
             tagForSymbol = tags;
+            ParagraphTags = new MarkdownTag("<p>", "</p>");
         }
 
         public MarkdownMaker(string configFile)
         {
             tagForSymbol = new Dictionary<string, MarkdownTag>();
+            var hasParagraphsTags = false;
             foreach (var line in FileParser.ReadLineFromFile(configFile))
             {
                 var tagProperties = line.Split();
                 var markdownTag = new MarkdownTag(tagProperties[1], tagProperties[2],
                     tagProperties[3] == "formatting_inside",
                     tagProperties[4] == "in_numbers");
-                tagForSymbol.Add(tagProperties[0], markdownTag);
+                if (tagProperties[0] == "paragraph")
+                {
+                    ParagraphTags = markdownTag;
+                    hasParagraphsTags = true;
+                }
+                else
+                    tagForSymbol.Add(tagProperties[0], markdownTag);
             }
+            if (!hasParagraphsTags)
+                ParagraphTags = new MarkdownTag("<p>", "</p>");
         }
 
         public string MarkParagraph(string text)
         {
             var tags = FindMarkdownTags(text);
             text = FindTaggedAreas(text, tags, 0);
-            return RemoveEscapes(text);
+            return ParagraphTags.OpeningTag + RemoveEscapes(text) + ParagraphTags.ClosingTag;
         }
 
         public string RemoveEscapes(string text)
@@ -89,7 +100,7 @@ namespace Markdown
             return tagPositions;
         }
 
-        public Tuple<int, int> FindTagPair(Dictionary<int, string> tagPositions, int offset, int textLength)
+        public TagPair FindTagPair(Dictionary<int, string> tagPositions, int offset, int textLength)
         {
             var openingTagIndex = 0;
             var closingTagIndex = 0;
@@ -106,14 +117,14 @@ namespace Markdown
                     break;
                 }
             }
-            return new Tuple<int, int>(openingTagIndex, closingTagIndex);
+            return new TagPair(openingTagIndex, closingTagIndex);
         }
 
         public string FindTaggedAreas(string text, Dictionary<int, string> tagPositions, int offset)
         {
             var tagIndexes = FindTagPair(tagPositions, offset, text.Length);
-            var openingTagIndex = tagIndexes.Item1;
-            var closingTagIndex = tagIndexes.Item2;
+            var openingTagIndex = tagIndexes.OpeningTagIndex;
+            var closingTagIndex = tagIndexes.ClosingTagIndex;
             if (closingTagIndex == 0)
                 return text;
 

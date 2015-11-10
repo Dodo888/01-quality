@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Markdown;
 
@@ -8,14 +8,19 @@ namespace Markdown_Tests
     [TestClass]
     public class MarkdownMakerTests
     {
+
+        public string DoMarkdown(Dictionary<string, MarkdownTag> tags, string text)
+        {
+            var markdownMaker = new MarkdownMaker(tags);
+            return markdownMaker.MarkParagraph(text);
+        }
+
         [TestMethod]
         public void Should_FindTaggedAreas()
         {
             var tags = new Dictionary<string, MarkdownTag> {{"_", new MarkdownTag("<em>", "</em>")}};
-            var markdownMaker = new MarkdownMaker(tags);
             var text = "It_should_change";
-            var result = markdownMaker.MarkParagraph(text);
-            Assert.AreEqual(result, "It<em>should</em>change");
+            Assert.AreEqual(DoMarkdown(tags, text), "<p>It<em>should</em>change</p>");
         }
 
         [TestMethod]
@@ -26,10 +31,8 @@ namespace Markdown_Tests
                 { "_", new MarkdownTag("<em>", "</em>") },
                 { "__", new MarkdownTag("<strong>", "</strong>")}
             };
-            var markdownMaker = new MarkdownMaker(tags);
             var text = "It_should_ __change__";
-            var result = markdownMaker.MarkParagraph(text);
-            Assert.AreEqual(result, "It<em>should</em> <strong>change</strong>");
+            Assert.AreEqual(DoMarkdown(tags, text), "<p>It<em>should</em> <strong>change</strong></p>");
         }
 
         [TestMethod]
@@ -40,10 +43,8 @@ namespace Markdown_Tests
                 { "_", new MarkdownTag("<em>", "</em>") },
                 { "`", new MarkdownTag("<code>", "</code>")}
             };
-            var markdownMaker = new MarkdownMaker(tags);
             var text = "_em tag `and code tag in it`_";
-            var result = markdownMaker.MarkParagraph(text);
-            Assert.AreEqual(result, "<em>em tag <code>and code tag in it</code></em>");
+            Assert.AreEqual(DoMarkdown(tags, text), "<p><em>em tag <code>and code tag in it</code></em></p>");
         }
 
         [TestMethod]
@@ -54,10 +55,8 @@ namespace Markdown_Tests
                 { "_", new MarkdownTag("<em>", "</em>") },
                 { "`", new MarkdownTag("<code>", "</code>", false, false)}
             };
-            var markdownMaker = new MarkdownMaker(tags);
             var text = "`code tag _and em tag in it_`";
-            var result = markdownMaker.MarkParagraph(text);
-            Assert.AreEqual(result, "<code>code tag _and em tag in it_</code>");
+            Assert.AreEqual(DoMarkdown(tags, text), "<p><code>code tag _and em tag in it_</code></p>");
         }
 
         [TestMethod]
@@ -68,10 +67,20 @@ namespace Markdown_Tests
                 { "_", new MarkdownTag("<em>", "</em>") },
                 { "`", new MarkdownTag("<code>", "</code>", false, false)}
             };
-            var markdownMaker = new MarkdownMaker(tags);
             var text = "`123code tag _and em tag in it_`";
-            var result = markdownMaker.MarkParagraph(text);
-            Assert.AreEqual(result, "`123code tag <em>and em tag in it</em>`");
+            Assert.AreEqual(DoMarkdown(tags, text), "<p>`123code tag <em>and em tag in it</em>`</p>");
+        }
+
+        [TestMethod]
+        public void Shouldnot_FindTaggedAreas_inTextWithNumbers()
+        {
+            var tags = new Dictionary<string, MarkdownTag>
+            {
+                { "_", new MarkdownTag("<em>", "</em>", true, false)},
+                { "`", new MarkdownTag("<code>", "</code>", false, false)}
+            };
+            var text = "lots`1`of _123_numbers_321_ there";
+            Assert.AreEqual(DoMarkdown(tags, text), "<p>lots`1`of _123_numbers_321_ there</p>");
         }
 
         [TestMethod]
@@ -82,10 +91,8 @@ namespace Markdown_Tests
                 { "_", new MarkdownTag("<em>", "</em>") },
                 { "`", new MarkdownTag("<code>", "</code>", false, false)}
             };
-            var markdownMaker = new MarkdownMaker(tags);
             var text = "It is \\_escaped_";
-            var result = markdownMaker.MarkParagraph(text);
-            Assert.AreEqual(result, "It is _escaped_");
+            Assert.AreEqual(DoMarkdown(tags, text), "<p>It is _escaped_</p>");
         }
 
         [TestMethod]
@@ -98,10 +105,39 @@ namespace Markdown_Tests
                 { "`", new MarkdownTag("<code>", "</code>")},
 
             };
-            var markdownMaker = new MarkdownMaker(tags);
             var text = "All tags _there__ are `unpaired";
-            var result = markdownMaker.MarkParagraph(text);
-            Assert.AreEqual(result, "All tags _there__ are `unpaired");
+            Assert.AreEqual(DoMarkdown(tags, text), "<p>All tags _there__ are `unpaired</p>");
+        }
+
+        [TestMethod]
+        public void Should_HandleIntersectedTaggedAreas()
+        {
+            var tags = new Dictionary<string, MarkdownTag>
+            {
+                { "_", new MarkdownTag("<em>", "</em>") },
+                { "__", new MarkdownTag("<strong>", "</strong>")}
+
+            };
+            var text = "There __are _some intersecting__ tags_";
+            Assert.IsTrue(new[]
+            {
+                "<p>There <strong>are _some intersecting</strong> tags_</p>",
+                "<p>There __are <em>some intersecting__ tags</em></p>"
+            }.Contains(DoMarkdown(tags, text)));
+        }
+
+        [TestMethod]
+        public void Should_HandleMultipleParagraphs()
+        {
+            var tags = new Dictionary<string, MarkdownTag>
+            {
+                { "_", new MarkdownTag("<em>", "</em>") },
+                { "__", new MarkdownTag("<strong>", "</strong>")},
+                { "`", new MarkdownTag("<code>", "</code>")},
+
+            };
+            var text = "All tags _there__ are `unpaired";
+            Assert.AreEqual(DoMarkdown(tags, text), "<p>All tags _there__ are `unpaired</p>");
         }
     }
 }

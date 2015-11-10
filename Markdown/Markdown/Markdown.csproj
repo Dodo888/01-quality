@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TagPair.cs" />
     <Compile Include="FileParser.cs" />
     <Compile Include="MarkdownMaker.cs" />
     <Compile Include="MarkdownTag.cs" />
