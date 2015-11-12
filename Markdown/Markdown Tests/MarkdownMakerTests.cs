@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Markdown;
@@ -129,15 +130,21 @@ namespace Markdown_Tests
         [TestMethod]
         public void Should_HandleMultipleParagraphs()
         {
-            var tags = new Dictionary<string, MarkdownTag>
-            {
-                { "_", new MarkdownTag("<em>", "</em>") },
-                { "__", new MarkdownTag("<strong>", "</strong>")},
-                { "`", new MarkdownTag("<code>", "</code>")},
+            var finalFile = "tests/test1.html";
+            if (File.Exists(finalFile))
+                File.Delete(finalFile);
+            Program.WriteContent("config.txt", "tests/test1.txt", finalFile);
+            Assert.AreEqual(File.ReadAllText(finalFile), File.ReadAllText("tests/correcttest1.html"));
+        }
 
-            };
-            var text = "All tags _there__ are `unpaired";
-            Assert.AreEqual(DoMarkdown(tags, text), "<p>All tags _there__ are `unpaired</p>");
+        [TestMethod]
+        public void Should_HandleSophisticatedFile()
+        {
+            var finalFile = "tests/test2.html";
+            if (File.Exists(finalFile))
+                File.Delete(finalFile);
+            Program.WriteContent("config.txt", "tests/test2.txt", finalFile);
+            Assert.AreEqual(File.ReadAllText(finalFile), File.ReadAllText("tests/correcttest2.html"));
         }
     }
 }

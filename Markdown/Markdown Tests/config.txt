@@ -1,0 +1,4 @@
+paragraph <p> </p> formatting_inside in_numbers
+_ <em> </em> formatting_inside not_in_numbers
+__ <strong> </strong> formatting_inside not_in_numbers
+` <code> </code> no_formatting_inside not_in_numbers

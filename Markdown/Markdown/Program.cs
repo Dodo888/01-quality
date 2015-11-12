@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Markdown
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
